@@ -5,6 +5,8 @@ go:
 - 1.15.x
 - 1.16.x
 dist: focal
+install:
+- go get -u golang.org/x/lint/golint
 script:
 - golint -set_exit_status ./...
 - go fmt ./...
