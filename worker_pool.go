@@ -2,7 +2,6 @@
 // easier to create work pools with early termination. This leaves you free to focus on
 // the problem being solved and the data pipeline, while the work pool manages concurrency
 // of execution.
-
 package workpool
 
 import (
