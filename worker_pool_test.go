@@ -35,7 +35,7 @@ func TestWorkerPoolExitWhenNoWork(t *testing.T) {
 	dur := end.Sub(start)
 
 	assert.Equal(t, numWorkers, sum)
-	assert.True(t, dur < 100 * time.Millisecond)
+	assert.True(t, dur < 100*time.Millisecond)
 }
 
 func TestWorkerPoolWithWorkToDo(t *testing.T) {
@@ -78,12 +78,12 @@ func TestWorkerPoolWithWorkToDo(t *testing.T) {
 	end := time.Now()
 	dur := end.Sub(start)
 
-	assert.Equal(t, 100 * (100 + 1) / 2, sum)
-	assert.True(t, dur < 100 * time.Millisecond)
+	assert.Equal(t, 100*(100+1)/2, sum)
+	assert.True(t, dur < 100*time.Millisecond)
 }
 
 func TestConcurrency(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		inputs    int
 		workers   int
 		sleep     time.Duration
@@ -98,22 +98,22 @@ func TestConcurrency(t *testing.T) {
 		},
 		// inputs == workers + 1, expect 2 intervals as one worker processes two inputs
 		{
-			inputs:  6,
-			workers: 5,
+			inputs:    6,
+			workers:   5,
 			sleep:     100 * time.Millisecond,
 			intervals: 2,
 		},
 		// a single worker processes inputs serially
 		{
-			inputs:  3,
-			workers: 1,
+			inputs:    3,
+			workers:   1,
 			sleep:     100 * time.Millisecond,
 			intervals: 3,
 		},
 		// inputs == workers * 2, expect perfect concurrency for 2 intervals
 		{
-			inputs:  6,
-			workers: 3,
+			inputs:    6,
+			workers:   3,
 			sleep:     100 * time.Millisecond,
 			intervals: 2,
 		},
@@ -158,7 +158,7 @@ func TestConcurrency(t *testing.T) {
 		start := time.Now()
 		pool.Run()
 
-		assert.WithinDuration(t, start.Add(test.sleep * time.Duration(test.intervals)), time.Now(), 1 * time.Millisecond)
+		assert.WithinDuration(t, start.Add(test.sleep*time.Duration(test.intervals)), time.Now(), 1*time.Millisecond)
 	}
 }
 

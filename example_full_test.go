@@ -1,7 +1,7 @@
 package workpool
 
 import (
-"fmt"
+	"fmt"
 )
 
 // gen creates a closed channel with the nums arguments.

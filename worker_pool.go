@@ -52,7 +52,7 @@ func New(numWorkers int, handler WorkHandler) *WorkPool {
 	return &WorkPool{
 		Handler: handler,
 		Workers: numWorkers,
-		done:	 make(chan struct{}),
+		done:    make(chan struct{}),
 	}
 }
 
@@ -61,7 +61,7 @@ func NewWithClose(numWorkers int, handler WorkHandler, close func()) *WorkPool {
 	return &WorkPool{
 		Handler: handler,
 		Workers: numWorkers,
-		done:	 make(chan struct{}),
+		done:    make(chan struct{}),
 		Close:   close,
 	}
 }
@@ -87,7 +87,7 @@ func (p *WorkPool) Run() {
 	var wg sync.WaitGroup
 	// Start workers
 	wg.Add(p.Workers)
-	for i:= 0; i < p.Workers; i++ {
+	for i := 0; i < p.Workers; i++ {
 		go func() {
 			defer wg.Done()
 			handler := p.Handler
