@@ -8,16 +8,18 @@ func ExampleWorkPool_struct() {
 		outputs <- 1
 		return false
 	}
+
 	closer := func() {
 		close(outputs)
 	}
-	//pool := NewWithClose(numWorkers, worker, closer)
+
 	pool := &WorkPool{
 		Handler: worker,
 		Workers: numWorkers,
 		Close:   closer,
 	}
-	go pool.Run()
+
+	pool.Run()
 }
 
 func ExampleNew() {
@@ -30,7 +32,8 @@ func ExampleNew() {
 	}
 
 	pool := New(numWorkers, worker)
-	go pool.Run()
+	pool.Run()
+	close(outputs)
 }
 
 func ExampleNewWithClose() {
