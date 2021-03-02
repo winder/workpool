@@ -46,6 +46,9 @@ func ExampleWorkPool() {
 
 	// Check results
 	for num := range output {
-		fmt.Println(num) // 4 9 100
+		fmt.Println(num)
 	}
+	// Output: 4
+	// 9
+	// 100
 }

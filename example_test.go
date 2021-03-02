@@ -4,7 +4,7 @@ import "fmt"
 
 func ExampleWorkPool_struct() {
 	numWorkers := 2
-	outputs := make(chan int, numWorkers)
+	outputs := make(chan int)
 
 	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
@@ -21,7 +21,7 @@ func ExampleWorkPool_struct() {
 		Close:   closer,
 	}
 
-	pool.Run()
+	go pool.Run()
 	for out := range outputs {
 		fmt.Println(out)
 	}
@@ -31,7 +31,7 @@ func ExampleWorkPool_struct() {
 
 func ExampleNew() {
 	numWorkers := 3
-	outputs := make(chan int, numWorkers)
+	outputs := make(chan int)
 
 	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
@@ -39,8 +39,11 @@ func ExampleNew() {
 	}
 
 	pool := New(numWorkers, worker)
-	pool.Run()
-	close(outputs)
+	go func() {
+		pool.Run()
+		close(outputs)
+	}()
+
 	for out := range outputs {
 		fmt.Println(out)
 	}
@@ -51,18 +54,20 @@ func ExampleNew() {
 
 func ExampleNewWithClose() {
 	numWorkers := 5
-	outputs := make(chan int, numWorkers)
+	outputs := make(chan int)
 
 	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
 		return false
 	}
+
 	closer := func() {
 		close(outputs)
 	}
 
 	pool := NewWithClose(numWorkers, worker, closer)
 	go pool.Run()
+
 	for out := range outputs {
 		fmt.Println(out)
 	}
