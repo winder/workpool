@@ -158,7 +158,7 @@ func TestConcurrency(t *testing.T) {
 		start := time.Now()
 		pool.Run()
 
-		assert.WithinDuration(t, start.Add(test.sleep*time.Duration(test.intervals)), time.Now(), 1*time.Millisecond)
+		assert.WithinDuration(t, start.Add(test.sleep*time.Duration(test.intervals)), time.Now(), 10*time.Millisecond)
 	}
 }
 
