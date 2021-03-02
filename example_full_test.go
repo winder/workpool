@@ -19,7 +19,7 @@ func gen(nums ...int) <-chan int {
 // sq connects an input channel to an output channel with a squaring function. If it detects the channel is closed false
 // is returned, otherwise it processes one number and returns.
 func sq(input <-chan int, output chan<- int) WorkHandler {
-	return func(done <-chan struct{}) bool {
+	return func(abort <-chan struct{}) bool {
 		for number := range input {
 			output <- number * number
 			return true

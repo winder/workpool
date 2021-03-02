@@ -4,7 +4,7 @@ func ExampleWorkPool_struct() {
 	numWorkers := 5
 	outputs := make(chan int, numWorkers)
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
 		return false
 	}
@@ -24,7 +24,7 @@ func ExampleNew() {
 	numWorkers := 5
 	outputs := make(chan int, numWorkers)
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
 		return false
 	}
@@ -37,7 +37,7 @@ func ExampleNewWithClose() {
 	numWorkers := 5
 	outputs := make(chan int, numWorkers)
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
 		return false
 	}

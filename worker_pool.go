@@ -14,30 +14,30 @@ import (
 //
 // Return true if the handler should be called again, otherwise return false to indicate work is complete.
 //
-// The done signal is triggered if the pool has been cancelled. It indicates that work should terminate immediately.
+// The abort signal is triggered if the pool has been cancelled. It indicates that work should terminate immediately.
 //
 // Where work comes from is implementation dependant, for example: a channel, RabbitMQ, dbus, or any other event system.
 //
 // Here is a WorkHandler which squares a number. Notice that it is wrapped in a function to pass in the input/output
 // channels. By returning after each item it allows the WorkPool to deal with early exits.
 //   func sq(input <-chan int, output chan<- int) WorkHandler {
-//       return func(done <-chan struct{}) bool {
+//       return func(abort <-chan struct{}) bool {
 //          for true {
 //              select {
 //              case number := <- input:
 //                  output <- number * number
 //                  //return true
-//              case <-done:
+//              case <-abort:
 //                  return false
 //              }
 //          }
 //       }
 //   }
 //
-// Here is another example which ignores the done channel. In this case the WorkPool will manage early termination, but
+// Here is another example which ignores the abort channel. In this case the WorkPool will manage early termination, but
 // will not be able to do so if the input channel is blocked:
 //   func sq(input <-chan int, output chan<- int) WorkHandler {
-//       return func(done <-chan struct{}) bool {
+//       return func(abort <-chan struct{}) bool {
 //           for number := range input {
 //               output <- number * number
 //               return true
@@ -45,14 +45,14 @@ import (
 //           return false
 //       }
 //   }
-type WorkHandler func(done <-chan struct{}) bool
+type WorkHandler func(abort <-chan struct{}) bool
 
 // New creates a worker pool with a given handler function.
 func New(numWorkers int, handler WorkHandler) *WorkPool {
 	return &WorkPool{
 		Handler: handler,
 		Workers: numWorkers,
-		done:    make(chan struct{}),
+		abort:   make(chan struct{}),
 	}
 }
 
@@ -61,7 +61,7 @@ func NewWithClose(numWorkers int, handler WorkHandler, close func()) *WorkPool {
 	return &WorkPool{
 		Handler: handler,
 		Workers: numWorkers,
-		done:    make(chan struct{}),
+		abort:   make(chan struct{}),
 		Close:   close,
 	}
 }
@@ -69,17 +69,24 @@ func NewWithClose(numWorkers int, handler WorkHandler, close func()) *WorkPool {
 // WorkPool manages running a WorkHandler in some number of goroutines. It also manages a cancel signal to allow for
 // early termination.
 type WorkPool struct {
+	// Handler is called repeatedly until all work is finished.
 	Handler WorkHandler
+
+	// Workers is the number of go routines used to call the handler.
 	Workers int
-	done    chan struct{}
-	Close   func()
+
+	// abort is used to notify workers that they should terminate early.
+	abort chan struct{}
+
+	// Close is called after all work is finished.
+	Close func()
 }
 
 // Run starts the configured number of workers and calls WorkHandler until all work has been processed, or the execution
 // is cancelled.
 func (p *WorkPool) Run() {
-	if p.done == nil {
-		p.done = make(chan struct{})
+	if p.abort == nil {
+		p.abort = make(chan struct{})
 	}
 	if p.Close != nil {
 		defer p.Close()
@@ -93,10 +100,10 @@ func (p *WorkPool) Run() {
 			handler := p.Handler
 			for true {
 				select {
-				case <-p.done:
+				case <-p.abort:
 					return
 				default:
-					foundWork := handler(p.done)
+					foundWork := handler(p.abort)
 					if !foundWork {
 						return
 					}
@@ -109,8 +116,8 @@ func (p *WorkPool) Run() {
 	wg.Wait()
 }
 
-// Cancel may be called asynchronously to signal that the pool should stop processing work and return to the caller. A
-// done signal will be sent to each WorkHandler to allow for graceful shutdown.
+// Cancel may be called asynchronously to signal that the pool should stop processing work and return to the caller. An
+// abort signal will be sent to each WorkHandler to allow for graceful shutdown.
 func (p *WorkPool) Cancel() {
-	close(p.done)
+	close(p.abort)
 }

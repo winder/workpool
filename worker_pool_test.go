@@ -11,7 +11,7 @@ func TestWorkerPoolExitWhenNoWork(t *testing.T) {
 	numWorkers := 5
 	outputs := make(chan int, numWorkers)
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		outputs <- 1
 		return false
 	}
@@ -44,7 +44,7 @@ func TestWorkerPoolWithWorkToDo(t *testing.T) {
 	inputs := make(chan int, numInputs)
 	outputs := make(chan int, numInputs)
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		// This construct is the trickiest part
 		for i := range inputs {
 			outputs <- i
@@ -124,7 +124,7 @@ func TestConcurrency(t *testing.T) {
 		inputs := make(chan int, test.inputs)
 		outputs := make(chan int, test.inputs)
 
-		worker := func(done <-chan struct{}) bool {
+		worker := func(abort <-chan struct{}) bool {
 			for i := range inputs {
 				// Simulate work time
 				time.Sleep(test.sleep)
@@ -177,7 +177,7 @@ func TestCancel(t *testing.T) {
 	inputs := make(chan int, numInputs)
 	outputs := make(chan int, numInputs)
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		for i := range inputs {
 			// Simulate work time
 			time.Sleep(100 * time.Microsecond)
@@ -224,12 +224,12 @@ func TestCancelWithOpenInputChannel(t *testing.T) {
 	numWorkers := 1
 	started := make(chan struct{})
 
-	worker := func(done <-chan struct{}) bool {
+	worker := func(abort <-chan struct{}) bool {
 		close(started)
 		select {
 		case <-time.After(1 * time.Hour):
 			return true
-		case <-done:
+		case <-abort:
 			return false
 		}
 		return true
