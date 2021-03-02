@@ -1,7 +1,9 @@
 package workpool
 
+import "fmt"
+
 func ExampleWorkPool_struct() {
-	numWorkers := 5
+	numWorkers := 2
 	outputs := make(chan int, numWorkers)
 
 	worker := func(abort <-chan struct{}) bool {
@@ -20,10 +22,15 @@ func ExampleWorkPool_struct() {
 	}
 
 	pool.Run()
+	for out := range outputs {
+		fmt.Println(out)
+	}
+	// Output: 1
+	// 1
 }
 
 func ExampleNew() {
-	numWorkers := 5
+	numWorkers := 3
 	outputs := make(chan int, numWorkers)
 
 	worker := func(abort <-chan struct{}) bool {
@@ -34,6 +41,12 @@ func ExampleNew() {
 	pool := New(numWorkers, worker)
 	pool.Run()
 	close(outputs)
+	for out := range outputs {
+		fmt.Println(out)
+	}
+	// Output: 1
+	// 1
+	// 1
 }
 
 func ExampleNewWithClose() {
@@ -50,4 +63,12 @@ func ExampleNewWithClose() {
 
 	pool := NewWithClose(numWorkers, worker, closer)
 	go pool.Run()
+	for out := range outputs {
+		fmt.Println(out)
+	}
+	// Output: 1
+	// 1
+	// 1
+	// 1
+	// 1
 }
