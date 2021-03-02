@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/algorand/workpool.svg?branch=master)](https://travis-ci.org/algorand/workpool)
+[![Build Status](https://travis-ci.com/algorand/workpool.svg?branch=master)](https://travis-ci.com/algorand/workpool)
 [![Go Report Card](https://goreportcard.com/badge/github.com/algorand/workpool)](https://goreportcard.com/report/github.com/algorand/workpool)
 [![GoDoc](https://godoc.org/github.com/algorand/workpool?status.svg)](https://godoc.org/github.com/algorand/workpool)
 
